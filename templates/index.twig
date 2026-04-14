@@ -1,0 +1,282 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+    <div class="layout-two-col">
+        <div>
+            <div class="card card-block">
+                <div class="card-header2">
+                    <div>
+                        代码问答
+                        <div class="section-desc">支持流式回答、session、evidence、源码查看</div>
+                    </div>
+                    <div class="card-tools">
+                        <div class="card-loading" id="answer_loading"><span class="dot"></span><span class="text">生成中...</span></div>
+                        <button class="btn btn-sm btn-outline-secondary" data-box-toggle="qa_params_panel">折叠</button>
+                    </div>
+                </div>
+                <div class="card-body" id="qa_params_panel">
+                    <div class="mb-3">
+                        <label class="compact-label">项目</label>
+                        <select id="project_name" class="form-select form-select-sm">
+                            {% for p in projects %}
+                                <option value="{{ p }}">{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="compact-label">Profile</label>
+                            <select id="profile" class="form-select form-select-sm">
+                                <option value="impl" selected>impl</option>
+                                <option value="api">api</option>
+                                <option value="class_view">class_view</option>
+                                <option value="file_view">file_view</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="compact-label">Style</label>
+                            <select id="style" class="form-select form-select-sm">
+                                <option value="chat" selected>chat</option>
+                                <option value="detailed">detailed</option>
+                                <option value="concise">concise</option>
+                                <option value="bullets">bullets</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-6">
+                            <label class="compact-label">Embedding 模型</label>
+                            <select id="embed_model" class="form-select form-select-sm">
+                                {% for m in embed_model_choices %}
+                                    <option value="{{ m }}" {% if m == default_embed_model %}selected{% endif %}>{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="compact-label">Chat 模型</label>
+                            <select id="chat_model" class="form-select form-select-sm">
+                                {% for m in chat_model_choices %}
+                                    <option value="{{ m }}" {% if m == default_chat_model %}selected{% endif %}>{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-4">
+                            <label class="compact-label">Limit</label>
+                            <input id="limit" type="number" class="form-control form-control-sm" value="5">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="compact-label">Temperature</label>
+                            <input id="temperature" type="number" step="0.01" min="0" max="2" class="form-control form-control-sm" value="0.1">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="compact-label">Top P</label>
+                            <input id="top_p" type="number" step="0.01" min="0" max="1" class="form-control form-control-sm" value="1">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-4">
+                            <label class="compact-label">Max Tokens</label>
+                            <input id="max_tokens" type="number" min="0" class="form-control form-control-sm" value="0" placeholder="0 表示默认">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="compact-label">上下文条数</label>
+                            <input id="session_context_limit_ui" type="number" class="form-control form-control-sm" value="5" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="compact-label">单条回答截断</label>
+                            <input id="session_answer_char_limit_ui" type="number" class="form-control form-control-sm" value="1000" readonly>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-6">
+                            <label class="compact-label">Debug</label>
+                            <select id="debug" class="form-select form-select-sm">
+                                <option value="0">关闭</option>
+                                <option value="1" selected>开启</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="compact-label">Stream</label>
+                            <select id="stream_enabled" class="form-select form-select-sm">
+                                <option value="1" selected>开启</option>
+                                <option value="0">关闭</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="mt-2">
+                        <label class="compact-label">Path Prefix</label>
+                        <input id="path_prefix" type="text" class="form-control form-control-sm" placeholder="src/">
+                    </div>
+
+                    <div class="mt-2">
+                        <label class="compact-label">Namespace Prefix</label>
+                        <input id="namespace_prefix" type="text" class="form-control form-control-sm" placeholder="Vendor\\Package">
+                    </div>
+
+                    <div class="mt-2">
+                        <label class="compact-label">Visibility</label>
+                        <input id="visibility" type="text" class="form-control form-control-sm" placeholder="public/private/protected">
+                    </div>
+
+                    <div class="mt-2">
+                        <label class="compact-label">Kinds（可多选）</label>
+                        <div class="section-desc mb-2">不选表示不过滤</div>
+                        <div class="kinds-grid" id="kinds_group">
+                            <label class="kind-native"><input type="checkbox" value="class"><span>class</span></label>
+                            <label class="kind-native"><input type="checkbox" value="interface"><span>interface</span></label>
+                            <label class="kind-native"><input type="checkbox" value="trait"><span>trait</span></label>
+                            <label class="kind-native"><input type="checkbox" value="enum"><span>enum</span></label>
+                            <label class="kind-native"><input type="checkbox" value="method"><span>method</span></label>
+                            <label class="kind-native"><input type="checkbox" value="function"><span>function</span></label>
+                            <label class="kind-native"><input type="checkbox" value="property"><span>property</span></label>
+                            <label class="kind-native"><input type="checkbox" value="class_const"><span>class_const</span></label>
+                            <label class="kind-native"><input type="checkbox" value="enum_case"><span>enum_case</span></label>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="compact-label">当前 Session</label>
+                        <div class="doc-box doc-box-sm"><span id="current_session_id">（新会话）</span></div>
+                    </div>
+
+                    <div class="mt-3">
+                        <label class="compact-label">问题</label>
+                        <textarea id="question" class="form-control question-textarea" placeholder="例如：像给同事讲代码一样，详细解释 SqlCache::autoCache 的实现机制、执行流程和关键设计点。"></textarea>
+                    </div>
+
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-4"><button class="btn btn-success btn-sm w-100" data-action="ask-question-new-session">新 session 提问</button></div>
+                        <div class="col-md-4"><button class="btn btn-outline-secondary btn-sm w-100" data-action="ask-question-current-session">当前 session 提问</button></div>
+                        <div class="col-md-4"><button class="btn btn-outline-secondary btn-sm w-100" data-action="fill-question-example">填入示例问题</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-block mt-3">
+                <div class="card-header2">
+                    <div>
+                        问题模板
+                        <div class="section-desc">快速生成常见提问</div>
+                    </div>
+                    <div class="card-tools">
+                        <button class="btn btn-sm btn-outline-secondary" data-box-toggle="templates">折叠</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="templates" class="doc-box history-box"></div>
+                </div>
+            </div>
+
+            <div class="card card-block mt-3">
+                <div class="card-header2">
+                    <div>
+                        会话历史
+                        <div class="section-desc">按 session 聚合显示，可折叠、收藏、删除</div>
+                    </div>
+                    <div class="card-tools">
+                        <button class="btn btn-sm btn-outline-secondary" data-action="start-new-session">开始新会话</button>
+                        <button class="btn btn-sm btn-outline-secondary" data-box-toggle="history_panel">折叠</button>
+                    </div>
+                </div>
+                <div class="card-body" id="history_panel">
+                    <div class="row g-2">
+                        <div class="col-md-8">
+                            <input id="history_keyword" type="text" class="form-control form-control-sm" placeholder="按问题关键词搜索历史">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-outline-secondary btn-sm w-100" data-action="search-history">搜索历史</button>
+                        </div>
+                    </div>
+
+                    <div id="history" class="doc-box history-box mt-2"></div>
+
+                    <div class="row g-2 mt-2">
+                        <div class="col-md-4">
+                            <button id="history_prev_btn" class="btn btn-outline-secondary btn-sm w-100" data-action="history-prev">上一页</button>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                            <div class="mini-meta" id="history_pager_info">第 1 / 1 页</div>
+                        </div>
+                        <div class="col-md-4">
+                            <button id="history_next_btn" class="btn btn-outline-secondary btn-sm w-100" data-action="history-next">下一页</button>
+                        </div>
+                    </div>
+
+                    <div class="mt-2 text-end">
+                        <button class="btn btn-danger btn-sm" data-action="clear-all-history">一键清空历史</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layout-right-stack">
+            <div class="card card-block">
+                <div class="card-header2">
+                    <div>
+                        后台状态
+                        <div class="section-desc">显示完整 Python 调用命令与实时状态日志</div>
+                    </div>
+                    <div class="card-tools">
+                        <button class="btn btn-sm btn-outline-secondary" data-box-toggle="status">折叠</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="status" class="doc-box status-box"></div>
+                </div>
+            </div>
+
+            <div class="card card-block mt-3">
+                <div class="card-header2">
+                    <div>
+                        回答
+                        <div class="section-desc" id="answer_meta"></div>
+                    </div>
+                    <div class="card-tools">
+                        <div class="card-loading" id="answer_loading_2"><span class="dot"></span><span class="text">生成中...</span></div>
+                        <button class="btn btn-sm btn-outline-secondary" data-action="copy-answer">复制回答</button>
+                        <button class="btn btn-sm btn-warning" data-action="continue-followup">继续追问</button>
+                        <button class="btn btn-sm btn-outline-secondary" data-box-toggle="answer">折叠</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="answer" class="doc-box answer-box"></div>
+                </div>
+            </div>
+
+            <div class="layout-double mt-3">
+                <div class="card card-block">
+                    <div class="card-header2">
+                        <div>Evidence 列表</div>
+                        <div class="card-tools">
+                            <button class="btn btn-sm btn-outline-secondary" data-box-toggle="evidence">折叠</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="evidence" class="doc-box evidence-box"></div>
+                    </div>
+                </div>
+
+                <div class="card card-block">
+                    <div class="card-header2">
+                        <div>详情</div>
+                        <div class="card-tools">
+                            <button class="btn btn-sm btn-outline-secondary" data-box-toggle="evidence_detail">折叠</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="evidence_detail" class="doc-box detail-box"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>PHP Code RAG WebUI</title>
+        <link rel="stylesheet" href="/assets/vendor/bootstrap/bootstrap.min.css">
+
+        <link rel="stylesheet" href="/assets/css/app.base.css?v=1">
+
+        <link rel="stylesheet" href="/assets/css/themes/code-light-mint.css?v=1">
+        <link rel="stylesheet" href="/assets/css/themes/code-light-ice.css?v=1">
+        <link rel="stylesheet" href="/assets/css/themes/code-light-sand.css?v=1">
+        <link rel="stylesheet" href="/assets/css/themes/code-light-lavender.css?v=1">
+        <link rel="stylesheet" href="/assets/css/themes/code-light-sky.css?v=1">
+
+        <link rel="stylesheet" href="/assets/css/themes/code-dark-slate.css?v=1">
+        <link rel="stylesheet" href="/assets/css/themes/code-dark-forest.css?v=1">
+        <link rel="stylesheet" href="/assets/css/themes/code-dark-ocean.css?v=1">
+        <link rel="stylesheet" href="/assets/css/themes/code-dark-plum.css?v=1">
+        <link rel="stylesheet" href="/assets/css/themes/code-dark-charcoal.css?v=1">
+    </head>
+    <body class="theme-code-light-mint">
+        <div class="app-shell">
+            <header class="app-header">
+                <div class="app-header-inner">
+                    <div>
+                        <div class="app-title">PHP Code RAG WebUI</div>
+                        <div class="app-subtitle">问答 / 搜索 / 管理 / 历史</div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="app-main container-fluid">
+                <div class="page-wrap">
+                    <div id="global_banner_area"></div>
+
+                    <div class="card nav-card">
+                        <div class="card-body">
+                            <div class="nav-links justify-content-between align-items-center">
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <a href="/" class="btn btn-sm nav-btn nav-btn-qa" data-nav-path="/">问答</a>
+                                    <a href="/search" class="btn btn-sm nav-btn nav-btn-search" data-nav-path="/search">搜索</a>
+                                    <a href="/admin" class="btn btn-sm nav-btn nav-btn-admin" data-nav-path="/admin">管理</a>
+                                    <a href="/history" class="btn btn-sm nav-btn nav-btn-history" data-nav-path="/history">历史</a>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 ms-auto">
+                                    <label class="compact-label mb-0">代码高亮主题</label>
+                                    <select id="code_theme_selector" class="form-select form-select-sm" style="width:220px">
+                                        <option value="code-light-mint" selected>亮色 · 薄荷</option>
+                                        <option value="code-light-ice">亮色 · 冰川</option>
+                                        <option value="code-light-sand">亮色 · 沙砾</option>
+                                        <option value="code-light-lavender">亮色 · 淡紫</option>
+                                        <option value="code-light-sky">亮色 · 天空</option>
+
+                                        <option value="code-dark-slate">暗色 · 石板</option>
+                                        <option value="code-dark-forest">暗色 · 森林</option>
+                                        <option value="code-dark-ocean">暗色 · 海洋</option>
+                                        <option value="code-dark-plum">暗色 · 梅紫</option>
+                                        <option value="code-dark-charcoal">暗色 · 木炭</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-main">
+                        {% block content %}{% endblock %}
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <div id="hover_pop" class="hover-pop"></div>
+
+        <div id="source_modal_mask" class="modal-mask">
+            <div class="modal-panel">
+                <div class="modal-head">
+                    <div>
+                        <div id="source_modal_title" class="modal-title-text">详情</div>
+                        <div id="source_modal_meta" class="mini-meta"></div>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-sm btn-outline-secondary" data-action="copy-source-modal">复制</button>
+                        <button class="btn btn-sm btn-warning" data-action="open-full-file">查看更多源码</button>
+                        <button class="btn btn-sm btn-danger" data-action="close-source-modal">关闭</button>
+                    </div>
+                </div>
+                <div class="modal-body2">
+                    <div id="source_modal_content" class="doc-box"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="toast_box" class="toast-box"></div>
+
+        <script src="/assets/vendor/jquery.min.js"></script>
+        <script src="/assets/vendor/marked.min.js"></script>
+        <script src="/assets/vendor/highlight.min.js"></script>
+        <script src="/assets/js/app.js?v=5"></script>
+    </body>
+</html>

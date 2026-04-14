@@ -1,0 +1,118 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+    <div class="layout-two-col">
+        <div>
+            <div class="card card-block">
+                <div class="card-header2">
+                    <div>
+                        代码搜索
+                        <div class="section-desc">查看 symbol 命中情况，支持源码预览与一键带入问答</div>                    </div>
+                    <div class="card-tools">
+                        <div class="card-loading" id="search_loading"><span class="dot"></span><span class="text">搜索中...</span></div>
+                        <button class="btn btn-sm btn-outline-secondary" data-box-toggle="search_params_panel">折叠</button>
+                    </div>
+                </div>
+
+                <div class="card-body" id="search_params_panel">
+                    <div class="mb-3">
+                        <label class="compact-label">项目</label>
+                        <select id="search_project_name" class="form-select form-select-sm">
+                            {% for p in projects %}
+                                <option value="{{ p }}">{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="compact-label">Query</label>
+                        <textarea id="search_query" class="form-control question-textarea" placeholder="例如：RedisTagAwareAdapter 类"></textarea>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="compact-label">Embedding 模型</label>
+                            <select id="search_embed_model" class="form-select form-select-sm">
+                                {% for m in embed_model_choices %}
+                                    <option value="{{ m }}" {% if m == default_embed_model %}selected{% endif %}>{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="compact-label">Chat 模型</label>
+                            <select id="search_chat_model" class="form-select form-select-sm">
+                                {% for m in chat_model_choices %}
+                                    <option value="{{ m }}" {% if m == default_chat_model %}selected{% endif %}>{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-6">
+                            <label class="compact-label">Path Prefix</label>
+                            <input id="search_path_prefix" type="text" class="form-control form-control-sm" placeholder="src/">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="compact-label">Visibility</label>
+                            <input id="search_visibility" type="text" class="form-control form-control-sm" placeholder="public/private/protected">
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-6">
+                            <label class="compact-label">Namespace Prefix</label>
+                            <input id="search_namespace_prefix" type="text" class="form-control form-control-sm" placeholder="Symfony\\Component\\Cache">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="compact-label">Limit</label>
+                            <input id="search_limit" type="number" class="form-control form-control-sm" value="5">
+                        </div>
+                    </div>
+
+                    <div class="mt-2">
+                        <label class="compact-label">Kinds（可多选）</label>
+                        <div class="section-desc mb-2">不选表示不过滤</div>
+                        <div class="kinds-grid" id="search_kinds_group">
+                            <label class="kind-native"><input type="checkbox" value="class"><span>class</span></label>
+                            <label class="kind-native"><input type="checkbox" value="interface"><span>interface</span></label>
+                            <label class="kind-native"><input type="checkbox" value="trait"><span>trait</span></label>
+                            <label class="kind-native"><input type="checkbox" value="enum"><span>enum</span></label>
+                            <label class="kind-native"><input type="checkbox" value="method"><span>method</span></label>
+                            <label class="kind-native"><input type="checkbox" value="function"><span>function</span></label>
+                            <label class="kind-native"><input type="checkbox" value="property"><span>property</span></label>
+                            <label class="kind-native"><input type="checkbox" value="class_const"><span>class_const</span></label>
+                            <label class="kind-native"><input type="checkbox" value="enum_case"><span>enum_case</span></label>
+                        </div>
+                    </div>
+
+                    <div class="row g-2 mt-3">
+                        <div class="col-md-6">
+                            <button class="btn btn-success btn-sm w-100" data-action="run-search">开始搜索</button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-outline-secondary btn-sm w-100" data-action="fill-search-example">填入示例搜索</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="layout-right-stack">
+            <div class="card card-block">
+                <div class="card-header2">
+                    <div>
+                        搜索结果
+                        <div class="section-desc">点击整张卡片查看详情、打开源码、带入问答</div>
+                    </div>
+                    <div class="card-tools">
+                        <button class="btn btn-sm btn-outline-secondary" data-box-toggle="search_results">折叠</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="search_results" class="doc-box search-box"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

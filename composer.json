@@ -1,0 +1,24 @@
+{
+	"name": "coco/code-rag-web",
+	"description": "PHP WebUI for Python Code RAG Engine",
+	"type": "project",
+	"require": {
+		"php": ">=8.2",
+		"slim/slim": "^4.14",
+		"slim/psr7": "^1.7",
+		"php-di/php-di": "^7.0",
+		"twig/twig": "^3.10",
+		"slim/twig-view": "^3.4",
+		"guzzlehttp/guzzle": "^7.9",
+		"monolog/monolog": "^3.8",
+		"vlucas/phpdotenv": "^5.6"
+	},
+	"autoload": {
+		"psr-4": {
+			"App\\": "app/"
+		}
+	},
+	"config": {
+		"sort-packages": true
+	}
+}

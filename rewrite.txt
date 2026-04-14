@@ -1,0 +1,14 @@
+    location ~ ^/php-api/(answer-stream-proxy|tasks/.+/stream-proxy)$ {
+        include _for_thinkphp.conf;
+
+        gzip off;
+        fastcgi_buffering off;
+        fastcgi_request_buffering off;
+        fastcgi_keep_conn on;
+
+        include _php82.conf;
+        include _php_configs.conf;
+
+        add_header X-Accel-Buffering no always;
+        add_header Cache-Control no-cache always;
+    }
